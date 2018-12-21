@@ -1,0 +1,6 @@
+# Redirect domain aliases to primary domain
+https://mathewteague.co.uk/* https://yewtreeweb.co.uk/:splat 301!
+https://yewtreeweb.uk/* https://yewtreeweb.co.uk/:splat 301!
+
+# Optional: Redirect default Netlify subdomain to primary domain
+https://yewtreeweb.netlify.com/* https://yewtreeweb.co.uk/:splat 301!
