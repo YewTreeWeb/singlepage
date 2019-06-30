@@ -1,0 +1,13 @@
+[build]
+  publish = "dist/"
+  command = "npm run build"
+
+[dev]
+  command = "gulp"
+
+[context.production]
+  command = "npm run build --prod"
+  NODE_ENV = "production"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "development"
