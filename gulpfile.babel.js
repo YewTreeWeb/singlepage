@@ -161,7 +161,7 @@ export const scripts = () => {
 
 // Images
 export const images = () => {
-  return src('src/images/*.+(jpg|png|svg')
+  return src('src/images/*.+(jpg|png|svg)')
     .pipe(
       $.plumber()
     )
