@@ -119,7 +119,9 @@ export const styles = () => {
     )
     .pipe(
       $.postcss([
-        cssnext({ browsers: ["last 1 version"] }),
+        cssnext({
+          browsers: ["last 1 version"],
+        }),
         rucksack({
             fallbacks: true,
         }),
@@ -161,16 +163,16 @@ export const scripts = () => {
 
 // Images
 export const images = () => {
-  return src('src/images/*.+(jpg|png|svg)')
+  return src('src/assets/images/*.+(jpg|png|svg)')
     .pipe(
       $.plumber()
     )
-    .pipe($.changed('dist/images'))
+    .pipe($.changed('dist/assets/images'))
     .pipe($.cache($.imagemin({
       progressive: true,
       interlaced: true
     })))
-    .pipe(dest('dist/images'))
+    .pipe(dest('dist/assets/images'))
 }
 
 export const cloudinary = () => {
@@ -199,15 +201,15 @@ export const cloudinary = () => {
 
 export const cloudinaryUse = () => {
   return src('dist/**/*.{html,css}')
-    .pipe($.replace('/assets/images/', config.cloudinary.url))
+    .pipe($.replace('/assets/images/', 'https://res.cloudinary.com/mat-teague/image/upload/c_scale,f_auto,fl_lossy.progressive,w_auto,dpr_auto,q_auto:best/'))
     .pipe(dest('dist'))
 } 
 
 // HTML
 export const html = () => {
-    return src('*.html')
+    return src('src/*.html')
     .pipe($.plumber())
-    .pipe($.changed('dist/*.html'))
+    .pipe($.changed('dist'))
     .pipe($.htmlAutoprefixer())
     .pipe($.when(prod, $.htmlmin({
       removeComments: true,
@@ -218,7 +220,6 @@ export const html = () => {
       minifyJS: true,
       minifyCSS: true
     })))
-    .pipe($.when(prod, $.size({title: 'optimized HTML'})))
     .pipe(dest('dist'))
 }
 
@@ -250,23 +251,20 @@ export const buildSW = done => {
 
 // Watch
 export const watchForChanges = () => {
-  watch(styleWatch)
+  watch('src/assets/sass/**/*.scss')
     .on('add', series(styles))
     .on('change', series(styles))
-  watch(imgWatch)
-    .on('add', series(images, cloudinary, reload))
-    .on('change', series(images, cloudinary, reload))
-  watch('src/css/*.css')
-    .on('add', series(copy, reload))
-    .on('change', series(copy, reload))
-  watch(jsWatch)
+  watch('src/assets/images/*')
+    .on('add', series(images, reload))
+    .on('change', series(images, reload))
+  watch('src/assets/js/**/*.js')
     .on('add', series(scripts, reload))
     .on('change', series(scripts, reload))
-  watch(phpWatch)
-    .on('add', series(reload, deploy))
-    .on('change', series(reload))
-  watch(fontsWatch)
-    .on('add', series(fonts, reload, deploy))
+  watch('src/*.html')
+    .on('add', series(html, reload))
+    .on('change', series(html, reload))
+  watch('src/assets/webfonts/*')
+    .on('add', series(fonts, reload))
     .on('change', series(fonts, reload))
 }
 

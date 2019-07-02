@@ -1,12 +1,11 @@
 {
-  "name": "yewtreeweb",
+  "name": "singlepage",
   "version": "1.0.0",
   "description": "Coming soon template",
-  "main": "index.js",
+  "main": "gulpfile.babel.js",
   "repository": "git@github.com:YewTreeWeb/singlepage.git",
   "author": "Mathew Teague <mathew.teague@yewtreeweb.co.uk>",
   "license": "MIT",
-  "private": true,
   "dependencies": {
     "airbnb-browser-shims": "^3.2.1",
     "bourbon": "^5.1.0",
@@ -56,5 +55,16 @@
     "webpack": "^4.35.0",
     "webpack-stream": "^5.2.1",
     "yargs": "^13.2.4"
-  }
+  },
+  "browserslist": [
+    "ie >= 10",
+    "ie_mob >= 10",
+    "ff >= 30",
+    "chrome >= 34",
+    "safari >= 7",
+    "opera >= 23",
+    "ios >= 7",
+    "android >= 4.4",
+    "bb >= 10"
+  ]
 }
