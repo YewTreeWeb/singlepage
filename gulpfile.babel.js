@@ -105,7 +105,7 @@ Tasks
 export const styles = () => {
   return src('src/assets/sass/*.scss')
     .pipe($.plumber())
-    .pipe($.changed('src/assets/css'))
+    .pipe($.changed('dist/assets/css'))
     .pipe($.when(!prod, $.sourcemaps.init()))
     .pipe(
       $.cssimport({
@@ -138,7 +138,7 @@ export const styles = () => {
     .pipe($.cleanCSS())
     .pipe($.when(!prod, $.uglifycss()))
     .pipe($.when(!prod, $.sourcemaps.write(".")))
-    .pipe(dest('src/assets/css'))
+    .pipe(dest('dist/assets/css'))
     .pipe($.when(!prod, sync.stream()))
 }
 
@@ -175,33 +175,33 @@ export const images = () => {
 
 export const cloudinary = () => {
   return (
-    src('src/images/*.+(jpg|png|svg)')
+    src('dist/assets/images/*.+(jpg|png|svg)')
       .pipe($.plumber())
       .pipe($.changed('/'))
       .pipe(
-        $.when(
-          prod,
-          $.cloudinary({
-            config: {
-              cloud_name: 'mat-teague',
-              api_key: '925148782699291',
-              api_secret: '2pdj9N2gyIvWxOquVwb8jf8WyMo'
-            }
-          })
-        )
+        $.cloudinary({
+          config: {
+            cloud_name: 'mat-teague',
+            api_key: '925148782699291',
+            api_secret: '2pdj9N2gyIvWxOquVwb8jf8WyMo'
+          }
+        })
       )
       .pipe(
-        $.when(
-            prod,
-            $.cloudinary.manifest({
-                path: 'cloudinary-manifest.json',
-                merge: true
-            })
-        )
+        $.cloudinary.manifest({
+          path: 'cloudinary-manifest.json',
+          merge: true
+        })
       )
       .pipe(dest('/'))
   )
 }
+
+export const cloudinaryUse = () => {
+  return src('dist/**/*.{html,css}')
+    .pipe($.replace('/assets/images/', config.cloudinary.url))
+    .pipe(dest('dist'))
+} 
 
 // HTML
 export const html = () => {
@@ -238,9 +238,7 @@ export const serve = done => {
 export const clean = () => del('dist')
 
 export const clear = done => {
-  if (prod) {
-    $.cache.clearAll()
-  }
+  $.cache.clearAll()
   done()
 }
 
@@ -282,7 +280,7 @@ export const dev = series(
 export const build = series(
   parallel(clean, clear),
   parallel(fonts, html, styles, images, scripts),
-  cloudinary,
+  parallel(cloudinary, cloudinaryUse),
   buildSW
 )
 export default dev
