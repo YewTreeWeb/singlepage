@@ -1,6 +1,20 @@
 
-# Created by https://www.gitignore.io/api/linux,windows,macos,node,sass
-# Edit at https://www.gitignore.io/?templates=linux,windows,macos,node,sass
+# Created by https://www.gitignore.io/api/node,windows,macos,linux,jekyll,sass,adobe
+# Edit at https://www.gitignore.io/?templates=node,windows,macos,linux,jekyll,sass,adobe
+
+### Adobe ###
+# Adobe Source Files
+*.psd
+*.ai
+*.indd
+*.prproj
+*.aep
+
+### Jekyll ###
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
 
 ### Linux ###
 *~
@@ -136,7 +150,6 @@ typings/
 .dynamodb/
 
 ### Sass ###
-.sass-cache/
 *.css.map
 *.sass.map
 *.scss.map
@@ -167,6 +180,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-dist/
-
-# End of https://www.gitignore.io/api/linux,windows,macos,node,sass
+# End of https://www.gitignore.io/api/node,windows,macos,linux,jekyll,sass,adobe
