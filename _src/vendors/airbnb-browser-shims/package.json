@@ -1,0 +1,51 @@
+{
+  "name": "airbnb-browser-shims",
+  "version": "3.2.1",
+  "description": "Browser and JS shims used by Airbnb.",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "safe-publish-latest",
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "npm run tests-only",
+    "tests-only": "node test",
+    "posttest": "npx aud"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/airbnb/browser-shims.git"
+  },
+  "keywords": [
+    "shims",
+    "polyfills"
+  ],
+  "author": "Jordan Harband <ljharb@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "airbnb-js-shims": "^2.1.1",
+    "classlist-polyfill": "^1.2.0",
+    "console-polyfill": "^0.3.0",
+    "document.contains": "^1.0.0",
+    "element-closest": "^2.0.2",
+    "ima-babel6-polyfill": "^0.12.0",
+    "input-placeholder-polyfill": "^1.0.0",
+    "intersection-observer": "^0.5.1",
+    "matchmedia-polyfill": "^0.3.1",
+    "raf": "^3.4.1",
+    "ric-shim": "^1.0.0",
+    "shim-keyboard-event-key": "^1.0.3",
+    "smoothscroll-polyfill": "^0.3.6",
+    "whatwg-fetch": "^0.11.1",
+    "window-location-origin": "^0.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.15.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "safe-publish-latest": "^1.1.2",
+    "tape": "^4.10.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

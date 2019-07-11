@@ -1,10 +1,7 @@
 "use strict";
 
 import { src, dest, watch, series, parallel } from "gulp";
-import fs from "fs";
-import through from "through2";
 import yargs from "yargs";
-import yaml from "js-yaml";
 import autoprefixer from "autoprefixer";
 import plugins from "gulp-load-plugins";
 import browserSync from "browser-sync";
@@ -17,20 +14,11 @@ import calc from "postcss-calc";
 import rucksack from "rucksack-css";
 import critical from "critical";
 import shell from "shelljs";
-import modernizrConfig from "../../../config/modernizr-config.json";
 
-import pkg from "../../../package.json";
+import pkg from "./package.json";
 
 // Define environment.
 const prod = yargs.argv.prod;
-
-// Load Gulp config file.
-function loadConfig() {
-  const ymlFile = fs.readFileSync("config/gulpconfig.yml", "utf8");
-  return yaml.load(ymlFile);
-}
-const config = loadConfig();
-module.exports = config;
 
 // Load Gulp Plugins
 const $ = plugins({
@@ -99,7 +87,7 @@ const vendors = Object.keys(pkg.dependencies || {});
 export const vendorsTask = () => {
   if (vendors.length === 0) {
     return new Promise(resolve => {
-      console.log(config.vendors.notification);
+      console.log('No modules found.');
       resolve();
     });
   }
@@ -109,12 +97,12 @@ export const vendorsTask = () => {
     {
       base: "./node_modules/",
     }
-  ).pipe(dest("src/vendors"));
+  ).pipe(dest("_src/vendors"));
 };
 
 // JS task
 export const js = done => {
-  src("src/js/custom.js")
+  src("_src/js/custom.js")
     .pipe($.plumber())
     .pipe(named())
     .pipe(
@@ -151,7 +139,7 @@ export const js = done => {
 
 // Combile theme js
 export const themeJS = done => {
-  src(["src/js/main.js", "src/js/util.js"])
+  src(["_src/js/main.js", "_src/js/util.js", "_src/js/breakpoints.min.js", "_src/js/browser.min.js"])
     .pipe($.plumber())
     .pipe(
       $.size({
@@ -171,7 +159,7 @@ export const themeJS = done => {
 
 // Sass task
 export const sass = done => {
-  src(["src/sass/custom.scss", "src/sass/main.scss", "src/sass/noscript.scss"])
+  src(["_src/sass/custom.scss", "_src/sass/main.scss", "_src/sass/noscript.scss"])
     .pipe($.plumber())
     .pipe($.when(!prod, $.sourcemaps.init()))
     .pipe(
@@ -224,13 +212,14 @@ export const sass = done => {
       )
     )
     .pipe($.when(!prod, $.sourcemaps.write(".")))
-    .pipe(dest(config.sass.dest))
-    .pipe($.when(!prod, sync.stream()));
+    .pipe($.when(!prod, dest('_site/assets/css')))
+    .pipe($.when(!prod, sync.stream()))
+    .pipe(dest('assets/css'));
   done();
 };
 
 // Generate critical CSS.
-task("critical", () => {
+export const criticalTask = () => {
   process.setMaxListeners(0);
   return src("_site/**/*.html")
     .pipe(
@@ -239,7 +228,7 @@ task("critical", () => {
         criticalCSS({
           base: "_site/",
           inline: false,
-          css: ["_site/assets/styles/kubix.css"],
+          css: ["_site/assets/css/kubix.css"],
           dimensions: [
             {
               height: 568,
@@ -279,12 +268,12 @@ task("critical", () => {
     .on("error", err => {
       log.error(err.message);
     })
-    .pipe(dest("_site/assets/styles/critical"));
-});
+    .pipe(dest("_site/assets/css/critical"));
+};
 
 // Compress images
 export const images = done => {
-  src("src/images/*")
+  src("_src/images/*")
     .pipe($.plumber())
     .pipe(
       $.changed("assets/images", {
@@ -304,6 +293,23 @@ export const images = done => {
     .pipe(dest("assets/images"))
     .pipe($.size({ title: "images" }));
   done();
+};
+
+// Cloudinary upload
+export const cloudinary = done => {
+  src('_src/images/*')
+    .pipe(cloudinaryUpload({
+      config: {
+        cloud_name: 'mat-teague',
+        api_key: '925148782699291',
+        api_secret: '2pdj9N2gyIvWxOquVwb8jf8WyMo'
+      }
+    }))
+    .pipe(cloudinaryUpload.manifest({
+      path: '_src/data/cloudinary-manifest.json',
+      merge: true
+    }))
+    .pipe(gulp.dest('_src/data'));
 };
 
 // 'gulp jekyll' -- builds your site with development settings
@@ -330,7 +336,7 @@ function reload(done) {
 }
 // 'gulp serve' -- open up your website in your browser and watch for changes
 // in all your files and update them when needed
-task("serve", done => {
+export const serve = done => {
   let syncPort = 4000;
   let syncPortUi = 4001;
   let syncServer = "_site";
@@ -345,7 +351,9 @@ task("serve", done => {
       ui: {
         port: syncPortUi,
       },
-      server: syncServer,
+      server:{
+        baseDir: syncServer
+      },
       logFileChanges: syncChanges,
       logLevel: syncLvl,
       injectChanges: true,
@@ -359,16 +367,31 @@ task("serve", done => {
 
   // Watch various files for changes and do the needful
   watch(
-    ["./**/*.html", "./**/*.md", "*.yml", "assets/**/*", "netlify.toml"],
-    series("jekyll", reload)
+    ["./**/*.html", "./**/*.md", "*.yml", "netlify.toml"],
+    series(jekyll, reload)
   );
-  watch("src/**/*.js")
-    .on("add", series("scripts"))
-    .on("change", series("scripts"));
-  watch("src/**/*.scss")
-    .on("add", series("styles"))
-    .on("change", series("styles"));
-  watch("src/images/*")
-    .on("add", series("images"))
-    .on("change", series("images"));
-});
+  watch("_src/**/*.js")
+    .on("add", series(js, jekyll, reload))
+    .on("change", series(js, jekyll, reload));
+  watch("_src/**/*.scss")
+    .on("add", series(sass))
+    .on("change", series(sass));
+  watch("_src/images/*")
+    .on("add", series(images, jekyll, reload))
+    .on("change", series(images, jekyll, reload));
+}
+
+export const dev = series(
+  vendorsTask,
+  parallel(sass, themeJS, js, images),
+  jekyll,
+  serve
+)
+export const build = series(
+  vendorsTask,
+  parallel(sass, themeJS, js, images),
+  criticalTask,
+  jekyll,
+  cloudinary
+)
+export default dev
