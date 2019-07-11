@@ -6,6 +6,10 @@
   "repository": "git@github.com:YewTreeWeb/singlepage.git",
   "author": "Mathew Teague <mathew.teague@yewtreeweb.co.uk>",
   "license": "MIT",
+  "scripts": {
+    "build": "bundle exec jekyll build",
+    "build:prod": "gulp jekyll --prod"
+  },
   "dependencies": {
     "airbnb-browser-shims": "^3.2.1",
     "bourbon": "^5.1.0",
