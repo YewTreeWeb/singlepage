@@ -46,7 +46,15 @@
 				'transform #{_duration(article)} ease-in-out',
 				'filter #{_duration(article)} ease-in-out'
 			));
-			background-image:		url('../../assets/images/bg.jpg');
+			backface-visibility: hidden;
+			will-change: transform, filter;
+			background-image:		url('https://res.cloudinary.com/mat-teague/image/upload/c_scale,dpr_auto,f_auto/desk-from-above.jpg');
+			@include data(mode, dark){
+				background-image: url('https://res.cloudinary.com/mat-teague/image/upload/c_scale,dpr_auto,f_auto/desk-at-night.jpg');
+			}
+			@media (prefers-color-scheme: dark) {
+				background-image: url('https://res.cloudinary.com/mat-teague/image/upload/c_scale,dpr_auto,f_auto/desk-at-night.jpg');
+			}
 			background-position:	center;
 			background-size:		cover;
 			background-repeat:		no-repeat;
